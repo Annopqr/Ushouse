@@ -15,7 +15,13 @@
   <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white">
 </div>
 
-<hr>
+
+<br/>
+<div>
 
 
+<img src="https://github.com/Annopqr/Ushouse/assets/105402566/ae15eaba-6b64-478f-979d-4d1c578ff10d" width="500" height="600"/>
+
+
+</div>
 
