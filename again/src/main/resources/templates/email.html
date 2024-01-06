@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>이메일 인증</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+</head>
+<body>
+<h2>이메일 인증</h2>
+<input type="text" id="email" placeholder="이메일을 입력하세요">
+<button onclick="send()">인증 이메일 발송</button><br>
+<input type="text" id="inputcode" placeholder="인증 번호를 입력하세요">
+
+<input type="hidden" id = "code">
+<button onclick="check()">확인</button><br>
+
+<div id="codecode">
+
+
+</div>
+
+</body>
+
+<script th:inline="javascript">
+const send = () => {
+	const email = document.getElementById("email").value;
+	
+	$.ajax({
+		type:"post",
+		url: "/email/auth",
+		data:{
+			"email": email
+		},
+		success: function(res){
+			console.log("오케이", res);
+			document.getElementById('code').value = res;
+			 
+			
+			alert("해당 이메일로 인증번호 발송이 완료되었습니다. \n 확인부탁드립니다.")
+		},
+		error: function(err){
+			console.log("에러입니다.",err);
+		}
+	});
+}
+
+const check = () => {
+	const code = document.getElementById("code").value;
+	const inputcode = document.getElementById("inputcode").value;
+	console.log("code: " + code);
+	console.log("inputcode: " + inputcode);
+	if(code == inputcode){
+		console.log("일치합니다.");
+		let output = "<h3>일치합니다.</h3>";
+		document.getElementById('codecode').innerHTML = output;
+	}else{
+		console.log("일치하지않습니다.");
+		let output = "<h3>일치하지 않습니다.</h3>";
+		document.getElementById('codecode').innerHTML = output;
+	}
+}
+
+
+
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>detail</title>
+</head>
+<body>
+<table>
+	<tr>
+		<th>id</th>
+		<th>email</th>
+		<th>password</th>
+		<th>name</th>
+	</tr>
+	<!-- 하나의 회원 정보만 가지고 오는 것이므로 반복문 필요 없음 -->
+	<tr>
+    	<td th:text="${member.id}"></td>
+    	<td th:text="${member.memberEmail}"></td>
+    	<td th:text="${member.memberPassword}"></td>
+    	<td th:text="${member.memberName}"></td>
+  </tr>
+</table>
+</body>
+</html>

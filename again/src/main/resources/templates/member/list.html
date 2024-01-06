@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>list</title>
+</head> 
+<body>
+<h2>회원 목록</h2>
+<table>
+  <tr>
+    <th>id</th>
+    <th>memberEmail</th>
+    <th>memberPassword</th>
+    <th>memberName</th>
+    <th>상세조회</th>
+    <th>삭제</th>
+  </tr>
+  <!-- list로 데려온 애들을 반복문을 사용하여(each) 가져옴 -->
+  <tr th:each="member: ${memberList}">
+    <td th:text="${member.id}"></td>
+    <td th:text="${member.memberEmail}"></td>
+    <td th:text="${member.memberPassword}"></td>
+    <td th:text="${member.memberName}"></td>
+    <td>
+    <!-- rest api 주소만으로 어떤자원인지를 식별하자라는 취지로 사용
+    /member/1 이라면 member에서 1번째에 있는 회원 조회-->
+    <!-- @{| |} 타임리프 문법 -->
+      <a th:href="@{|/member/${member.id}|}">조회</a>
+    </td>
+    <td>
+      <a th:href="@{|/member/delete/${member.id}|}">삭제</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

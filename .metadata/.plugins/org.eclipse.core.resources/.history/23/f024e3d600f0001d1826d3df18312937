@@ -1,0 +1,34 @@
+package com.example.demo.Config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+		return httpSecurity
+				.httpBasic().disable()
+				.csrf().disable()
+				.cors().and()
+				.authorizeHttpRequests()
+				.requestMatchers("/member/save","/member/login").permitAll()
+				.requestMatchers("/","member/logout").permitAll()
+				.requestMatchers("member/email-check").permitAll()
+				.requestMatchers(HttpMethod.POST, "/board/**", "/comment/**").authenticated()
+				.requestMatchers(HttpMethod.POST, "/chat/**","/main").authenticated()
+				.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt사용하는 경우 씀
+				.and()
+				.build();
+		
+		// .requestMatchers(HttpMethod.POST, "경로").authenticated()
+		// permitAll로 설정한 경로 제외 모든 post요청을 인증된 사용자만 으로 설정한다.
+	}
+}

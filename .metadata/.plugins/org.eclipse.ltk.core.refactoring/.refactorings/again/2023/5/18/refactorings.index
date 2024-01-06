@@ -1,0 +1,13 @@
+1682917450818	Rename type 'like'
+1682922294259	Rename type 'BoardLikeController'
+1682922309856	Rename type 'BoardLikeEntity'
+1682936575404	Rename package 'com.example.demo.Config'
+1683008241901	Delete element
+1683008247917	Delete element
+1683008254805	Delete element
+1683008264307	Delete element
+1683008283463	Delete element
+1683008322162	Delete element
+1683008338444	Delete element
+1683210999783	Rename resource 'empty_like.jpg'
+1683211205647	Rename resource 'Emptylike.jpg'

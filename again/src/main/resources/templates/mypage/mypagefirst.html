@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://kit.fontawesome.com/53a8c415f1.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="/css/mypage.css">
+<link rel="stylesheet" href="/js/mypage.js">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+
+
+<div class="wrap">
+<div class="mypage">
+<div class="profile">
+                <div class="profile-image">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+
+<div class="mypage_menu">
+<a href="/mypage">내 프로필 생성하기</a>
+<a href="/mypagelist">내 프로필 목록</a>
+<a href="/mypage/noteroom">쪽지함</a>
+<a href="/member/update">내 정보 수정</a>
+<a href="/board/boardmylist">작성한 글</a>
+<a href="/member/logout">로그아웃</a>
+</div>
+</div>
+</div>
+<script>
+const memberEmail = localStorage.getItem('memberEmail');
+document.getElementById("userEmail").value = memberEmail;
+</script>
+</body>
+</html>

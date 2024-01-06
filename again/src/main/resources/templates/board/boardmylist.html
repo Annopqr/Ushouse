@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>내가 쓴 글</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="/css/boardmylist.css">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+
+<div class="wrap">
+<div class="board">
+<div class="boardform">
+<div class="mybtn">
+<input  class="content" id="boardwriter" value="" readonly>
+<button id="mylist-btn" onclick="mylist()">조회</button>
+</div>
+<div id="myboard-list">
+    <table>
+        
+        <tr th:each="board: ${boardList}">
+            <td th:text="${board.id}"></td>
+            <td th:text="${board.boardTitle}"></td>
+            <td th:text="${board.boardWriter}"></td>
+            <td th:text="*{#temporals.format(board.boardCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+            <td th:text="${board.boardHits}"></td>
+            <td th:text="${board.likeHits}"></td>
+            
+        </tr>
+    </table>
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+
+<script th:inline="javascript">
+const boardwriter = localStorage.getItem('memberEmail');
+document.getElementById("boardwriter").value = boardwriter;
+document.getElementById("userEmail").value = boardwriter;
+const mylist = () => {
+	
+	
+	const boardwriter = document.getElementById("boardwriter").value;
+	
+	$.ajax({
+		//요청방식 post, 요청주소 /board/boardmylist, 요청데이터 작성자
+		type: "post",
+		url: "/board/boardmylist",
+		data: {"boardwriter": boardwriter },
+		success: function(res){
+			console.log("요청성공", res);
+			let output = "<table>";
+            output += "<tr><th>게시글번호</th>";
+            output += "<th>제목</th>";
+            output += "<th>작성자</th>";
+            output += "<th>작성시간</th>";
+            output += "<th>조회수</th>";
+            output += "<th>좋아요</th></tr>";
+            for (let i in res) {
+                output += "<tr >";
+                output += "<td>" + res[i].id + "</td>";
+                output += "<td>" + res[i].boardTitle + "</td>";
+                output += "<td>" + res[i].boardWriter + "</td>";
+                output += "<td>" + res[i].boardCreatedTime + "</td>";
+                output += "<td>" + res[i].boardHits + "</td>";
+                output += "<td>" + res[i].likeHits + "</td>";
+                output += "</tr>";
+            }
+            output += "</table>";
+            document.getElementById('myboard-list').innerHTML = output;
+			
+		},
+		error: function(err){
+			console.log("요청실패", err);
+		}
+	});
+	
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>채팅방 생성</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+</head>
+<body>
+<h2>채팅방 생성</h2>
+
+	<form>
+	작성자: <input type="text" id="host" >
+	방이름: <input type="text" id = "roomName">
+	<button type = "button" onclick = "makeroom()">개설하기</button>
+	
+	</form>
+	
+<script type="text/javascript">
+const host = localStorage.getItem('memberEmail');
+
+document.getElementById('host').value = host;
+
+const makeroom = () => {
+	const host = document.getElementById("host").value;
+	const roomName = document.getElementById("roomName").value;
+	
+	const generateRandomString = (num) => {
+		const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		  let result = '';
+		  const charactersLength = characters.length;
+		  for (let i = 0; i < num; i++) {
+		      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		  }
+
+		  return result;
+	}
+	
+	const roomId = generateRandomString(10);
+	 
+	$.ajax({
+		type: "post",
+		url: "/chat/create",
+		data: {
+			"host" : host,
+			"roomName" : roomName,
+			"roomId": roomId
+		},
+		success: function(res){
+			window.alert("채팅 방 코드 :" + roomId);
+			
+			location.href="/chat/rooms";
+			
+		},
+		error: function(err){
+			console.log("에러",err);
+		}
+		
+	});
+}	
+	
+	
+</script>
+</body>
+</html>

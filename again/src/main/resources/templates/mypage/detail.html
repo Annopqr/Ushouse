@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>프로필 세부페이지</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/board.css">
+<style>
+#capture{
+width:550px;
+height:450px;
+
+}
+</style>
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+<div class="wrap">
+<div class="board">
+<div class="boardform">
+<div id="capture">
+	<h3 id="oneline" th:text="${mypage.oneline}"></h3><br>
+	<table>
+    	<tr>
+        	<th>번호</th>
+        	<td th:text="${mypage.id}" ></td>
+    	</tr>
+    	<tr>
+	        <th>한줄소개</th>
+    	    <td th:text="${mypage.oneline}"></td>
+	    </tr>
+    	<tr>
+        	<th>이름</th>
+        	<td th:text="${mypage.writer}"></td>
+    	</tr>
+    	<tr>
+        	<th>나이</th>
+        	<td th:text="${mypage.age}"></td>
+    	</tr>
+    	<tr>
+        	<th>성별</th>
+        	<td th:text="${mypage.gender}"></td>
+    	</tr>
+    	<tr>
+        	<th>흡연여부</th>
+        	<td th:text="${mypage.smoke}"></td>
+    	</tr>
+    
+    	<tr>
+        	<th>원하는 지역</th>
+        	<td th:text="${mypage.location}"></td>
+    	</tr>
+    
+   		<tr>
+        	<th>원하는 월세</th>
+        	<td th:text="${mypage.month}"></td>
+    	</tr>
+    
+    	<tr>	
+        	<th>자기소개</th>
+        	<td th:text="${mypage.myContent}"></td>
+    	</tr>
+    
+    	<tr>
+        	<th>원하는 룸메</th>
+        	<td th:text="${mypage.themContent}"></td>
+    	</tr>
+    
+	</table>
+</div>
+
+<br>
+<input class="submit" type="button" value="이미지로 변환하기" />
+<div id= "success"></div>
+</div>
+</div>
+</div>
+</body>
+<script th:inline="javascript">
+const memberEmail = localStorage.getItem("memberEmail");
+document.getElementById('userEmail').value = memberEmail;
+
+function change(uri, fileName) {
+	const link = document.createElement("a");
+	link.href = uri;
+	link.download = fileName;
+	
+	document.body.appendChild(link);
+	
+	link.click();
+	
+	document.body.removeChild(link);
+}
+
+
+$(":button").on('click', async function(e) {
+	html2canvas(document.querySelector("#capture")).then(canvas => {
+		change(canvas.toDataURL(),'MyProfile.png');
+	});
+	success.innerHTML = "<br>이미지로 변환완료되었습니다,";
+	
+});
+
+
+
+
+
+</script>
+</html>

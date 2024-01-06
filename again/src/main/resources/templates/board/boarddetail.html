@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세 페이지</title>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/53a8c415f1.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="/css/boarddetail.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="nav-container">
+        <a href="/main">
+          <img src="/image/Logo.png" alt="로고 이미지">
+        </a>
+        <ul class="menu">
+          <li><a href="/board/boardsave">글 작성하기</a></li>
+          <li><a href="/board/paging">글 목록</a></li>
+          <li><a href="/mypage/first">마이페이지</a></li>
+        </ul>
+        <ul class="user">
+          <li>
+            <input type="text" id="userEmail" value="" readonly>님 안녕하세요!<br>
+          </li>
+          <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <div class="wrap">
+    <div class="board-area">
+      <div class="con">
+        <h2 th:text="${board.boardTitle}"></h2>
+        <table>
+            <tr>
+              <td>번호: </td>
+              <td th:text="${board.id}"></td>
+              <td>작성자: </td>
+              <td th:text="${board.boardWriter}"></td>
+            </tr>
+            <tr>
+              <td>날짜: </td>
+              <td th:text="*{#temporals.format(board.boardCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+              <td>조회수: </td>
+              <td th:text="${board.boardHits}"></td>
+            </tr>
+            <tr>
+            <td>지역(구): </td>
+              <td th:text="${board.locationGu}"></td>
+              <td>지역(동): </td>
+              <td th:text="${board.locationDong}"></td>
+            </tr>
+            <tr>
+              <td>좋아요: </td>
+              <td th:text="${board.likeHits}"></td>
+            </tr>
+            <tr>
+            <td>내용</td>
+              <td th:text="${board.boardContents}"></td>
+            </tr>
+            <tr th:if="${board.fileAttached == 1}">
+              <td>이미지</td>
+              <td colspan="3">
+                <img class="img" th:each="fileName: ${board.storedFileName}" th:src="@{|/upload/${fileName}|}" alt="">
+              </td>
+            </tr>
+          </table>
+        <input type="hidden" id="like_check" th:value="${like}">
+		<img id="likeImg" onclick="like()" ><br>
+        <br>
+        <div>
+          <button onclick="listReq()">목록</button>
+          <button onclick="updateReq()">수정</button>
+          <button onclick="deleteReq()">삭제</button>
+        </div>
+        <!-- 댓글작성 -->
+        <form id="commentForm">
+          <input type="hidden" name="boardId" id="boardId" th:value="${board.id}">
+          <input type="text" name="commentWriter" id="commentWriter" readonly>
+          <input type="text" name="commentContents" id="commentContents" placeholder="내용">
+          <input type="file" name="commentFile" id="commentFile" />
+          <button type="button" id="commentBtn" onclick="commentWrite()">댓글작성</button>
+        </form>
+        <div id="comment-list">
+          <!-- 기존에 있던 댓글들의 목록을 보여줌(상세페이지에 접근했을때 게시글 상세정보와 함께) -->
+          <table>
+            <tr>
+              <th>댓글번호</th>
+              <th>작성자</th>
+              <th>내용</th>
+              <th>이미지</th>
+              <th>작성시간</th>
+              
+            </tr>
+            <tr th:each="comment: ${commentList}">
+              <td th:text="${comment.id}"></td>
+              <td th:text="${comment.commentWriter}"></td>
+              <td th:text="${comment.commentContents}"></td>
+                <td th:each="fileName: ${comment.storedFileName}">
+                <img class="imgcom" th:src="@{|/upload/${fileName}|}" alt="">
+              </td>
+              <td th:text="*{#temporals.format(comment.commentCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+              
+
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script th:inline="javascript">
+
+const userEmail = localStorage.getItem("memberEmail");
+document.getElementById("userEmail").value = userEmail;
+
+const commentWriter = localStorage.getItem('memberEmail');
+document.getElementById('commentWriter').value = commentWriter;
+console.log("이름:", commentWriter);
+
+
+
+
+// 좋아요
+let likeVal = document.getElementById("like_check").value;
+const boardId = [[${board.id}]];
+console.log("게시물 번호",boardId);
+console.log("좋아요 값", likeVal);
+const likeImg = document.getElementById("likeImg") 
+
+if (likeVal > 0 ){
+	likeImg.src = "/image/full_like.jpg";
+} else {
+	likeImg.src = "/image/empty_like.jpg";
+}
+
+const like = () => {
+	
+	const memberEmail = localStorage.getItem('memberEmail');
+	$.ajax({
+		
+		type: "post",
+		url: "/board/like",
+		data: {"boardId" : boardId,
+			   "memberEmail": memberEmail	   
+		},
+		success: function(res){
+			if (res == 1){
+				$("#likeImg").attr("src", "/image/full_like.jpg");
+				location.href="/board/"+boardId;
+			} else {
+				$("#likeImg").attr("src", "/image/empty_like.jpg");
+				location.href="/board/"+boardId;
+			}
+		},
+		error: function() {
+			console.log("오류 뿅");
+		}
+		
+		
+	});
+	
+	
+}
+
+
+// 댓글작성
+const commentWrite = () => {
+	var form = $('#commentForm')[0];
+	var formData = new FormData(form);
+	
+	
+	
+	// 이제 작성된 내용을 컨트롤러로 보내기 위해서 ajax를 사용한다.
+	$.ajax({
+		// 요청방식: post, 요청주소: /comment/save, 요청데이터: (1)작성자, (2)작성내용, (3)게시글 번호
+		// 댓글처리 할때 어떤 게시물의 댓글인가가 정말 중요하다.(즉, 댓글을 저장할때 게시글 번호가 반드시 있어야한다. )
+		type: "post",
+		url: "/comment/save",
+		contentType : false,
+		processData : false,
+		data: formData ,
+		success: function(res){
+			// 작성한 댓글을 추가해서 댓글목록을 보여줌
+			console.log("요청성공", res);
+			let output = "<table>";
+            output += "<tr><th>댓글번호</th>";
+            output += "<th>작성자</th>";
+            output += "<th>내용</th>";
+            output += "<th>작성시간</th>";
+            output += "<th>이미지</th></tr>";
+            for (let i in res) {
+                output += "<tr>";
+                output += "<td>" + res[i].id + "</td>";
+                output += "<td>" + res[i].commentWriter + "</td>";
+                output += "<td>" + res[i].commentContents + "</td>";
+                output += "<td>" + res[i].commentCreatedTime + "</td>";
+                output += "<td>" + res[i].storedFileName + "</td>";
+                output += "</tr>";
+                
+                
+            }
+            output += "</table>";
+            document.getElementById('comment-list').innerHTML = output;
+            document.getElementById('commentContents').value = '';
+            document.getElementById('commentFile').value='';
+            
+
+		},
+		error: function(err){
+			console.log("요청실패", err);
+		}
+		
+	});
+}
+
+
+
+
+
+
+const listReq = () => {
+    console.log("목록 요청");
+    const page = [[${page}]];
+    location.href = "/board/paging?page="+ page;
+}
+const updateReq = () => {
+    console.log("수정 요청");
+    const id = [[${board.id}]];
+    location.href = "/board/boardupdate/" + id;
+}
+const deleteReq = () => {
+    console.log("삭제 요청");
+    const id = [[${board.id}]];
+    location.href = "/board/boarddelete/" + id;
+}
+
+</script>
+</body>
+</html>

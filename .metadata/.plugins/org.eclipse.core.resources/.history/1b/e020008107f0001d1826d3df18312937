@@ -1,0 +1,39 @@
+package com.example.demo.Config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+		return httpSecurity
+				.httpBasic().disable()
+				.csrf().disable()
+				.cors().and()
+				.authorizeHttpRequests()
+				.requestMatchers("/member/save","/member/login").permitAll()
+				.requestMatchers("/","member/logout").permitAll()
+				.requestMatchers("member/email-check").permitAll()
+				.requestMatchers(HttpMethod.POST, "/board/**", "/comment/**").authenticated()
+				.requestMatchers(HttpMethod.POST, "/chat/**","/main").authenticated()
+				.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt사용하는 경우 씀
+				.and()
+				.addFilterBefore(new JwtTokenFilter(memberService, key), UsernamePasswordAuthenticationFilter.class)
+				.build();
+		
+		// .requestMatchers(HttpMethod.POST, "경로").authenticated()
+		// permitAll로 설정한 경로 제외 모든 post요청을 인증된 사용자만 으로 설정한다.
+		// UsernamePasswordAuthenticationFilter - spring security 에서 제공하는 필터로 아이디, 패스워드 기반의 인증을 담당하고 있는 필터이다.
+		// 이는 아이디, 패스워드를 form 데이터로 받아서 처리하는 녀석 
+		// 이녀석을 기점으로 spring security에서 제공하고 있는 확장 및 변경 포인트를 이해하는 것이 중요하다.
+		// 중요한 두가지 포인트 AuthenticationManager, AuthenticationProvider => 공부하기
+	}
+}

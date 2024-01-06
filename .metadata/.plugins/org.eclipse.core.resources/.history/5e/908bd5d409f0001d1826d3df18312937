@@ -1,0 +1,44 @@
+package com.example.demo.Config;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.example.demo.Service.MemberService;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class JwtTokenFilter extends OncePerRequestFilter {
+	
+	private final MemberService memberService;
+	private final String key;
+	
+// index,회원가입, 로그인 제외 다른 모든기능을 다 막아놓았다 filter가 바로 문이라고 생각을 하면된다.(token에서 claim의 정보를 꺼내오고, 권한을 부여한다.)
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+		
+
+		// memberEmail Token에서 꺼내기
+		 String memberEmail = "";
+	
+		// 권한 부여(UsernamePasswordAuthenticationToken - login과 pssword로 인증하는 경우 이 필터를 많이 쓴다.)
+		 // 인증이 완료되며누 member 권한부여
+		UsernamePasswordAuthenticationToken authenticationToken =
+				new UsernamePasswordAuthenticationToken(memberEmail, null, List.of(new SimpleGrantedAuthority("MEMBER")));
+		// Detail을 넣어준다 
+		authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+		// request안애 authenticationToken넣기 - 인증된 토근이라는 표시
+		filterChain.doFilter(request, response);
+	}
+}

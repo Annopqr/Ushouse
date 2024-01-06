@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>쪽지</title>
+ <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/53a8c415f1.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+   <link rel="stylesheet" href="/css/note.css">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+  <div class="wrap">
+        <form class="chat-room" id="chat-room">
+            <div class="nick-menu">
+                <a href="/mypage/noteroom">뒤로</a>
+                번호:<input type="text" th:value="${noteroomId}" id="noteroomId" readonly>
+            </div>
+            <div id="chat">
+                <div id="col">
+                    <div th:each="note: ${noteDTOList}" class="chat-message">
+                        <div>
+                            <div th:text="${note.writer}"></div>
+                            <div th:text="${note.note}"></div>
+                        </div>
+                        <div th:text="*{#temporals.format(note.noteCreatedTime, 'yyyy년 MM월 dd일')}"></div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <label for="imageInput" class="image-icon">
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;"
+                            onchange="handleImageUpload(event)">
+                        <i class="far fa-image"></i>
+                    </label>
+                    <input type="text" id="writer" readonly>
+                    <input type="text" id="note">
+                    <button type="button" id="send">전송</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+<script>
+const memberEmail = localStorage.getItem("memberEmail");
+const noteroomId = document.getElementById("noteroomId").value;
+
+document.getElementById('writer').value = memberEmail;
+document.getElementById("userEmail").value = memberEmail;
+
+var sockJs = new SockJS("/stomp/chat");
+var stomp = Stomp.over(sockJs);
+
+stomp.connect({}, function(){
+	console.log("stomp연결 성공");
+	
+	stomp.subscribe("/sub/mypage/note/" + noteroomId, function(res){
+		console.log("res:", res);
+		let content = JSON.parse(res.body);
+		console.log("content:", content);
+		console.log(content.writer);
+		const writer= content.writer;
+		if(writer == memberEmail){
+			console.log("같음");
+			var str ='';
+			str = "<div class='col-6'>";
+			
+				
+		        str += "<div class='alert alert-first'>";
+		        str += "<b>" + content.writer + " : " + content.note + "</b>";
+		        str += "<br></div>";
+		       
+			
+			 str += "</div>";
+			 $("#col").append(str);
+			 
+		}else{
+			console.log("다름");
+			var str ='';
+			str = "<div class='col-7'>";
+			
+				
+		        str += "<div class='alert alert-first'>";
+		        str += "<b>" + content.writer + " : " + content.note + "</b>";
+		        str += "<br></div>";
+		       
+			
+			 str += "</div>";
+			 $("#col").append(str);
+		}
+		
+		
+		
+		 
+	});
+	
+	stomp.send("/pub/chat/noteroom",{}, JSON.stringify({"noteroomId": noteroomId, "writer": memberEmail}));
+	
+	$("#send").on("click", function(e){
+		const note = document.getElementById("note").value;
+		console.log("채팅: ", note);
+		const writer = document.getElementById("writer").value;
+		console.log("작성자: "+ writer, "채팅: " + note);
+		stomp.send("/pub/chat/note", {}, JSON.stringify({"noteroomId": noteroomId, "writer": writer, "note": note}));
+		document.getElementById("note").value= "";
+		
+	});
+	
+	
+});
+
+</script>
+
+</body>
+</html>

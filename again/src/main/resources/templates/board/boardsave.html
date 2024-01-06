@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>게시글 작성</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/53a8c415f1.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="/css/board.css">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="wrap">
+		<div class="board">    
+		<div class="boardform">
+	<form  action="/board/boardsave" method="post" enctype="multipart/form-data">
+
+		작성자: <input class="content" name = "boardWriter" id="boardWriter" readonly><br>
+		제목: <input class="content" type="text" name = "boardTitle" id="boardTitle"><br>
+		내용: <textarea class="content" name = "boardContents" id="boardContents" cols="30" rows="10"></textarea><br>
+		파일: <input  type="file" name = "boardFile" id = "boardFile" multiple><br>
+		지역: <select name="locationGu" id="location">
+		<option  value="">지역 설정</option>
+		<option value="마포구">마포구</option>
+		<option value="서대문구">서대문구</option>
+		<option value="용산구">용산구</option>
+		<option value="종로구">종로구</option>
+		<option value="성북구">성북구</option>
+		<option value="동대문구">동대문구</option>
+		<option value="성동구">성동구</option>
+	</select>
+	<input type="text" class="content" name ="locationDong" placeholder="동이름을 적어주세요"><br>
+	<br>
+
+		<input type="submit" class="submit" value="글작성" onclick="boardclick()" >
+	</form>
+	</div>
+	</div>
+
+</div>
+
+
+
+
+<script  th:inline="javascript">
+
+const memberEmail = localStorage.getItem('memberEmail');
+document.getElementById('boardWriter').value = memberEmail;
+document.getElementById("userEmail").value = memberEmail;
+
+// 채팅방 코드 localStorage에 저장
+const boardclick = () => {
+
+	const chatroomcode = document.getElementById("chatroomcode").value;
+	localStorage.setItem('chatroomCode', chatroomcode);
+	
+
+	
+}
+
+</script>
+</body>
+</html>

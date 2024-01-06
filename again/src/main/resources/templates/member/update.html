@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>update</title>
+<link rel="stylesheet" type="text/css" href="/css/board.css">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/chat/rooms">커뮤니티</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+<div class="wrap">
+<div class="board">
+<div class="boardform">
+<h3>내 정보 수정</h3>
+<form class="update" action="/member/update" method="post">
+  <input type="hidden" th:value="${updateMember.id}" name="id"><br>
+  이메일: <input class="content" type="text" th:value="${updateMember.memberEmail}" name="memberEmail" readonly> <br>
+  비밀번호: <input class="content" type="text" th:value="${updateMember.memberPassword}" name="memberPassword"> <br>
+  이름: <input class="content" type="text" th:value="${updateMember.memberName}" name="memberName"> <br>
+  <input class="submit" type="submit" value="정보수정">
+</form>
+</div>
+</div>
+</div>
+<script>
+const memberEmail = localStorage.getItem('memberEmail');
+document.getElementById('userEmail').value = memberEmail;
+</script>
+</body>
+</html>

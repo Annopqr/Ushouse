@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>채팅방</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div>
+	<div>
+		<b>채팅방입니당</b>
+		<h1>방이름 : <input type="text" th:value="${roominfo.roomName}" readonly> </h1>
+		<h4>방장: <input type="text" th:value="${roominfo.host}" readonly></h4>
+	</div>
+	<div id="chat">
+		<div id="col">
+		
+		</div>
+		<div>
+			<input type="text" id="writer" readonly>
+			<input type="text" id="chatting">
+		</div>
+		<button type="button" id="send">전송하기</button>
+	</div>
+	<div class="col-6"></div>
+	
+</div>
+
+<script>
+
+
+
+const chatroomId = localStorage.getItem("chatroomId");
+const roomName = localStorage.getItem("roomName");
+const memberEmail = localStorage.getItem("memberEmail");
+
+console.log("방번호 :"+chatroomId+", 방이름 :"+ roomName +", 작성자:" + memberEmail);
+
+document.getElementById('writer').value = memberEmail;
+
+var sockJs = new SockJS("/stomp/chat");
+var stomp = Stomp.over(sockJs);
+
+stomp.connect({}, function(){
+	console.log("stomp연결 성공");
+	
+	stomp.subscribe("/sub/chat/room/" + chatroomId, function(res){
+		const memberEmail = localStorage.getItem('memberEmail');
+		console.log("res:", res);
+		let content = JSON.parse(res.body);
+		console.log("content:", content.writer);
+		var str ='';
+		str = "<div class='col-6'>";
+		
+			
+	        str += "<div class='alert alert-first'>";
+	        str += "<b>" + content.writer + " : " + content.note + "</b>";
+	        str += "<br></div>";
+	       
+		
+		 str += "</div>";
+		 $("#col").append(str);
+		
+		 
+	});
+	
+	stomp.send("/pub/chat/enter",{}, JSON.stringify({"chatroomId": chatroomId, "writer": memberEmail}));
+	
+	$("#send").on("click", function(e){
+		const chat = document.getElementById("chatting").value;
+		console.log("채팅: ", chat);
+		const writer = document.getElementById("writer").value;
+		console.log("작성자: "+ writer, "채팅: " + chat);
+		stomp.send("/pub/chat/message", {}, JSON.stringify({"chatroomId": chatroomId, "writer": writer, "chat": chat}));
+		document.getElementById("chatting").value= "";
+	});
+	
+	
+});
+
+const note = () => {
+	location.href="/chat/note";
+}
+
+const singo = () => {
+	location.href="/chat/singo";
+}
+
+
+
+</script>
+</body>
+</html>

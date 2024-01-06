@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>쪽지함</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="/css/noteroom.css">
+<style>
+  .wrapp {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+   
+    }
+    .board{
+    height:500px;
+    }
+  
+</style>
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="wrap">
+    <div class="wrapboard">
+<h3>쪽지함</h3><br>
+<h5>쪽지함 만들기</h5><br>
+<div>
+	<input type="text" id="sendPerson" readonly>
+	<input type="text" id="receivePerson" placeholder="받을 사람의 아이디">
+	<input type="text" id="noteroomName" placeholder="쪽지함 이름">
+	
+	<button onclick="makenoteroom()">만들기</button>
+</div><br>
+<h5>내가 만든 쪽지함</h5><br>
+
+<table>
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>만든 사람</th>
+        <th>초대된 사람</th>
+        <th>생성날짜</th>
+    </tr>
+    <tr th:each="noteroom: ${noteroomDTOList}">
+        <td th:text="${noteroom.noteroomId}"></td>
+        <td><a th:href="@{|/mypage/note/${noteroom.noteroomId}|}" th:text="${noteroom.noteroomName}"></a></td>
+        <td th:text="${noteroom.sendPerson}"></td>
+        <td th:text="${noteroom.receivePerson}"></td>
+        <td th:text="*{#temporals.format(noteroom.noteroomCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+    </tr>
+</table>
+<br>
+<h5>초대된 쪽지함</h5><br>
+<table>
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>초대된 사람</th>
+       	<th>만든 사람</th>
+        <th>생성날짜</th>
+    </tr>
+    <tr th:each="noteroom: ${roomDTOList}">
+        <td th:text="${noteroom.noteroomId}"></td>
+        <td><a th:href="@{|/mypage/note/${noteroom.noteroomId}|}" th:text="${noteroom.noteroomName}"></a></td>
+        <td th:text="${noteroom.receivePerson}"></td>
+        <td th:text="${noteroom.sendPerson}"></td>
+        <td th:text="*{#temporals.format(noteroom.noteroomCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+    </tr>
+</table>
+</div>
+</div>
+
+<script>
+
+const memberEmail = localStorage.getItem('memberEmail');
+document.getElementById("sendPerson").value = memberEmail;
+document.getElementById("userEmail").value = memberEmail;
+
+const makenoteroom = () => {
+	const sendPerson = document.getElementById("sendPerson").value;
+	const receivePerson = document.getElementById("receivePerson").value;
+	const noteroomName = document.getElementById("noteroomName").value;
+	
+	$.ajax({
+		type:"post",
+		url: "/mypage/noteroom",
+		data:{
+			"sendPerson": sendPerson,
+			"receivePerson": receivePerson,
+			"noteroomName" : noteroomName
+		},
+		success:function(res){
+			succ(res);
+			
+		},
+		error:function(err){
+			console.log("생성 실패", err);
+			fail(error);
+		}
+		
+	});
+}
+
+</script>
+</body>
+
+</html>

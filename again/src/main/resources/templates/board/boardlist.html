@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>list</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/53a8c415f1.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="/css/boardlist.css">
+
+</head>
+<body>
+<header>
+      <nav>
+        <div class="nav-container">
+          <a href="/main">
+            <img src="/image/Logo.png" alt="로고 이미지">
+          </a>
+          <ul class="menu">
+            <li><a href="/board/boardsave">글 작성하기</a></li>
+            <li><a href="/board/paging">글 목록</a></li>
+            <li><a href="/mypage/first">마이페이지</a></li>
+          </ul>
+        <ul class="user">
+              <li><input type = "text" id = "userEmail" readonly>님 안녕하세요!<br></li>
+			  <li><a href="/member/logout">로그아웃</a></li>
+        </ul>
+        </div>
+      </nav>
+    </header>
+
+<div class="wrap">
+<div class="board-area">
+    <h3>지역을 설정하세요</h3>
+<div>
+   <select id="location">
+      <option value="">지역 설정</option>
+      <option value="마포구">마포구</option>
+      <option value="서대문구">서대문구</option>
+      <option value="용산구">용산구</option>
+      <option value="종로구">종로구</option>
+      <option value="성북구">성북구</option>
+      <option value="동대문구">동대문구</option>
+      <option value="성동구">성동구</option>
+   </select>
+<button onclick="findlocation()">조회</button>
+</div>
+<br>
+<div id="find"></div><br>
+<div>
+<table id="post-list">
+    <tr class="classtwo">
+        <td ></td>
+        <td >제목</td>
+        <td >작성자</td>
+        <td >작성날짜</td>
+        <td >조회수</td>
+        <td >좋아요</td>
+        <td>지역</td>
+    </tr>
+        <tr class="class" th:each="board: ${boardList}">
+        <td th:text="${board.id}"></td>
+        <td><a th:href="@{|/board/${board.id}|(page=${boardList.number + 1})}" th:text="${board.boardTitle}"></a></td>
+        <!-- 목록에서 상세조회를 하게될때 현재 머물고있는 페이지까지 같이 상세조회에 넘겨준다.-->
+        <td th:text="${board.boardWriter}"></td>
+        <td th:text="*{#temporals.format(board.boardCreatedTime, 'yyyy년 MM월 dd일')}"></td>
+        <td th:text="${board.boardHits}"></td>
+        <td th:text="${board.likeHits}"></td>
+        <td th:text="${board.locationGu}"></td>
+    </tr>
+</table>
+</div>
+
+
+
+
+<div class="paging">
+<a th:href="@{/board/paging(page=1)}">First</a>
+<!-- /board/paging(page=1)타임리프 문법이고, /board/paging?page=1로 요청전송된다. 
+즉, board의 paging의 page 1을 요청한다.
+-->
+<a th:href="${boardList.first} ? '#' : @{/board/paging(page=${boardList.number})}">prev</a>
+<!-- bordList.first라면 그대로 있고 그게 아니라면 해당링크로 이동해라 
+boardList의 getNumber메서드 호출 - boardList.number()
+-->
+
+<!-- for(int page=startPage; page<=endPage; page++)-->
+<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+<!-- 즉, startPage부터 endPage가 될때 까지 증가하면서 반복한다. -->
+<!-- 현재페이지는 링크 없이 숫자만 --> 
+    <span th:if="${page == boardList.number + 1}" th:text="${page}"></span>
+<!-- 
+boardList.number는 db에서 number를 가지고 온것이기 때문에 클라이언트가 요청한 페이지의 숫자보다 1 작다.
+그러므로 1을 더해주어서 제출한다. 즉, 클라이언트 기준으로 값을 표현했다.
+-->
+<!-- 현재페이지 번호가 아닌 다른 페이지번호에는 링크를 보여줌  -->
+    <span th:unless="${page == boardList.number + 1}">
+        <a th:href="@{/board/paging(page=${page})}" th:text="${page}"></a>
+        <!-- ${page}에 /board/paging(page${page})의 링크를 부여 -->
+    </span>
+</span>
+
+<!-- 다음 링크 활성화 비활성화
+    사용자: 2페이지, getNumber: 1페이지
+    사용자(클라이언트)가 3페이지로 가려면 getNumber: 2페이지 즉, 0으로 시작하는 boardList.number에다가 2를 더해 db의 2페이지 출력 -->
+<a th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.number + 2})}">next</a>
+<!-- 마지막 페이지로 이동 -->
+<a th:href="@{/board/paging(page=${boardList.totalPages})}">Last</a>
+      </div>
+   </div>
+</div>
+</div></div>
+
+
+
+
+
+</body>
+
+<script>
+const memberEmail = localStorage.getItem("memberEmail");
+document.getElementById("userEmail").value = memberEmail;
+    const saveReq = () => {
+        location.href = "/board/boardsave";
+    }
+    const findlocation = () => {
+    	const input = document.getElementById('location').value;
+    	$.ajax({
+    		type: "post",
+    		url: "/board/location",
+    		data:{"input": input},
+    		success: function(res){
+    			console.log("지역 조회 성공");
+    			let output = "<table>";
+    			output += "<tr><th></th>";
+    			output += "<th>제목</th>";
+    			output += "<th>작성자</th>";
+    			output += "<th>작성날짜</th>"
+    			output += "<th>조회수</th>";
+    			output += "<th>좋아요</th>";
+    			output += "<th>지역</th></tr>";
+    			
+    			for(let i in res){
+    				 output += "<tr>";
+    	                output += "<td>" + res[i].id + "</td>";
+    	                output += "<td><a>" + res[i].boardTitle + "</a></td>";
+    	                output += "<td>" + res[i].boardWriter + "</td>";
+    	                output += "<td>" + res[i].boardCreatedTime + "</td>";
+    	                output += "<td>" + res[i].boardHits + "</td>";
+    	                output += "<td>" + res[i].likeHits + "</td>";
+    	                output += "<td>" + res[i].locationGu + "</td>";
+    	                output += "</tr>";
+    			}
+    			output += "</table>";
+    			document.getElementById('find').innerHTML = output;
+    			
+    		},
+    		error: function(err){
+    			console.log("지역 조회 실패");
+    		}
+    	});
+    	
+    }
+
+</script>
+</html>
